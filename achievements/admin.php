@@ -9,7 +9,7 @@ requireLogin();
 // Somente administradores podem acessar esta página (verificação simplificada por enquanto)
 // Em um sistema real, você teria um sistema de permissões mais robusto
 if ($_SESSION['user_email'] !== 'admin@example.com') {
-    addError("Acesso negado. Somente administradores podem acessar esta página!");
+    addError("Acesso negado. Somente administradores podem acessar esta página!!");
     redirect('/dashboard/index.php');
     exit;
 }
