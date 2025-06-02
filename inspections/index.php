@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/config/config.php';
+require_once  '../config/config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
 
@@ -244,7 +244,7 @@ $inspections = getCompanyInspections($companyId);
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="<?= isset($_GET['company_id']) ? '/inspections/index.php?company_id=' . htmlspecialchars($companyId) : '/inspections/index.php' ?>" class="btn btn-secondary" id="previewModalBackButton">Voltar</a>
+                <?php /*<a href="<?= isset($_GET['company_id']) ? '/inspections/index.php?company_id=' . htmlspecialchars($companyId) : '/inspections/index.php' ?>" class="btn btn-secondary" id="previewModalBackButton">Voltar</a> */ ?>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
             </div>
         </div>

@@ -1,15 +1,15 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once  './config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Redirect to dashboard if logged in
 if (isLoggedIn()) {
-    redirect(url: "/inspectia/dashboard/index.php");
+    redirect(url: BASE_URL . "/dashboard/index.php");
 }
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="px-4 py-5 my-5 text-center">
     <h1 class="display-5 fw-bold text-primary">
@@ -117,4 +117,4 @@ if (isLoggedIn()) {
     </div>
 </div>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; ?>

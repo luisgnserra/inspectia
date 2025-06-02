@@ -1,5 +1,9 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/config/config.php';
+$script = $_SERVER['SCRIPT_FILENAME'];
+
+$url = strpos($script, 'inspections/responses') !== false ? '../../' :  '../';
+
+require_once $url . 'config/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

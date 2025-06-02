@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/config/config.php';
+require_once  '../config/config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
 
 // Set headers for JSON response
