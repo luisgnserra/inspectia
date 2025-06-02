@@ -1,9 +1,9 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/achievements/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/admin/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/achievements/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/admin/functions.php';
 
 // Verificar se o usuário está logado
 requireLogin();
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         
         // Salvar o arquivo SVG
         $fileName = 'badge_' . strtolower(str_replace(' ', '_', $name)) . '_' . time() . '.svg';
-        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/inspectia/assets/img/badges/' . $fileName;
+        $filePath = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/assets/img/badges/' . $fileName;
         file_put_contents($filePath, $svgContent);
         
         // Adicionar badge ao banco de dados
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 
                 // Save the SVG file
                 $fileName = 'badge_' . strtolower(str_replace(' ', '_', $name)) . '_' . time() . '.svg';
-                $filePath = $_SERVER['DOCUMENT_ROOT'] . '/inspectia/assets/img/badges/' . $fileName;
+                $filePath = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/assets/img/badges/' . $fileName;
                 file_put_contents($filePath, $svgContent);
                 
                 $imagePath = '/assets/img/badges/' . $fileName;
@@ -260,7 +260,7 @@ function createBadgeSvg($backgroundColor, $icon) {
 }
 
 // Incluir template de cabeçalho
-include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php';
 ?>
 
 <div class="container py-4">
@@ -659,5 +659,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php
 // Incluir template de rodapé
-include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php';
 ?>

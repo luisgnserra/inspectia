@@ -1,7 +1,7 @@
 <?php
 require_once  '../../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Verificar se o usuário está autenticado
 requireLogin();

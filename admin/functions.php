@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 /**
  * Registra uma atividade administrativa
@@ -49,7 +49,7 @@ function isAdmin() {
 function requireAdmin() {
     if (!isAdmin()) {
         addError("Você não tem permissão para acessar esta página");
-        redirect(url: "/inspectia/dashboard/index.php");
+        redirect(url: "/dashboard/index.php");
         exit;
     }
 }

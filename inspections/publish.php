@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Check if user is logged in
 requireLogin();
@@ -14,7 +14,7 @@ $inspectionId = sanitizeInput($_GET['id'] ?? '');
 
 if (empty($inspectionId)) {
     addError("Inspection ID is required.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Get inspection data
@@ -23,13 +23,13 @@ $inspection = getInspectionById($inspectionId);
 // Check if inspection exists and belongs to this company
 if (!$inspection || $inspection['company_id'] !== getActiveCompanyId()) {
     addError("Inspection not found or you don't have permission to publish it.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Check if the inspection is already published
 if ($inspection['status'] === 'published') {
     addError("This inspection is already published.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Get the questions for this inspection to validate
@@ -38,7 +38,7 @@ $questions = getQuestionsByInspectionId($inspectionId);
 // Check if there are any questions
 if (empty($questions)) {
     addError("Cannot publish an inspection without questions. Please add at least one question.");
-    redirect(url: "/inspectia/inspections/edit.php?id=" . $inspectionId);
+    redirect(url: "/inspections/edit.php?id=" . $inspectionId);
 }
 
 // Validate choice questions have options
@@ -54,7 +54,7 @@ foreach ($questions as $question) {
 }
 
 if ($hasError) {
-    redirect(url: "/inspectia/inspections/edit.php?id=" . $inspectionId);
+    redirect(url: "/inspections/edit.php?id=" . $inspectionId);
 }
 
 // Publish the inspection
@@ -64,5 +64,5 @@ if (publishInspection($inspectionId)) {
     addError("Failed to publish inspection. Please try again.");
 }
 
-redirect(url: "/inspectia/inspections/index.php");
+redirect(url: "/inspections/index.php");
 ?>

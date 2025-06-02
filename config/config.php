@@ -43,7 +43,11 @@ function redirect($url)
         $url = '/' . $url;
     }
 
-    $finalUrl = $url;
+    $finalUrl = BASE_URL . $url;
+
+    header('Location: ' . $finalUrl);
+
+    exit();
 
     // Debug info antes do redirecionamento
     // echo "<!DOCTYPE html>

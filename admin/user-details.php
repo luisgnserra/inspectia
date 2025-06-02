@@ -1,9 +1,9 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/achievements/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/admin/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/achievements/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/admin/functions.php';
 
 // Verificar se o usuário está logado
 requireLogin();
@@ -14,7 +14,7 @@ requireAdmin();
 // Obter dados do usuário
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     addError("ID do usuário não fornecido");
-    redirect(url: "/inspectia/admin/index.php");
+    redirect(url: "/admin/index.php");
     exit;
 }
 
@@ -23,7 +23,7 @@ $user = getUserById($userId);
 
 if (!$user) {
     addError("Usuário não encontrado");
-    redirect(url: "/inspectia/admin/index.php");
+    redirect(url: "/admin/index.php");
     exit;
 }
 
@@ -66,7 +66,7 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $badges = getUserBadges($userId);
 
 // Incluir template de cabeçalho
-include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php';
 ?>
 
 <div class="container py-4">
@@ -282,5 +282,5 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php';
 
 <?php 
 // Incluir template de rodapé
-include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php';
 ?>

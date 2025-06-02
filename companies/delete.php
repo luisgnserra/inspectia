@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Check if user is logged in
 requireLogin();
@@ -15,7 +15,7 @@ $company = getCompanyById($companyId);
 // Check if company exists and belongs to this user
 if (!$company || $company['user_id'] !== $userId) {
     addError("Company not found or you don't have permission to delete it.");
-    redirect(url: "/inspectia/companies/index.php");
+    redirect(url: "/companies/index.php");
 }
 
 // Check if this is the active company
@@ -45,8 +45,8 @@ if (deleteCompany($companyId)) {
 // Redirect based on whether there are remaining companies
 $remainingCompanies = getUserCompanies($userId);
 if (empty($remainingCompanies)) {
-    redirect(url: "/inspectia/companies/create.php");
+    redirect(url: "/companies/create.php");
 } else {
-    redirect(url: "/inspectia/companies/index.php");
+    redirect(url: "/companies/index.php");
 }
 ?>

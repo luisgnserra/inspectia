@@ -1,6 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/config/database.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/config/database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Register a new user
 function registerUser($email, $password, $confirmPassword) {
@@ -214,7 +214,7 @@ function sendPasswordResetEmail($email, $token) {
 function requireLogin() {
     if (!isLoggedIn()) {
         addError("Please login to access this page.");
-        redirect(url: "/inspectia/auth/login.php");
+        redirect(url: "/auth/login.php");
     }
 }
 
@@ -222,7 +222,7 @@ function requireLogin() {
 function requireActiveCompany() {
     if (!getActiveCompanyId()) {
         addError("Please create or select a company first.");
-        redirect(url: "/inspectia/companies/index.php");
+        redirect(url: "/companies/index.php");
     }
 }
 ?>

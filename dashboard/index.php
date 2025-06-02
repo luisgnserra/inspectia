@@ -1,8 +1,8 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/achievements/notifications.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/achievements/notifications.php';
 
 // Check if user is logged in
 requireLogin();
@@ -45,7 +45,7 @@ foreach ($inspections as $inspection) {
 }
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Painel</h1>
@@ -263,5 +263,5 @@ foreach ($inspections as $inspection) {
 // Exibir notificações de conquistas, se houver
 displayAchievementNotifications();
 
-include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; 
+include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; 
 ?>

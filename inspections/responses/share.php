@@ -1,7 +1,7 @@
 <?php
 require_once  '../../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Check if user is logged in
 requireLogin();
@@ -14,7 +14,7 @@ $inspectionId = sanitizeInput($_GET['id'] ?? '');
 
 if (empty($inspectionId)) {
     addError("ID da inspeção é obrigatório.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Get inspection data
@@ -23,7 +23,7 @@ $inspection = getInspectionById($inspectionId);
 // Check if inspection exists and belongs to this company
 if (!$inspection || $inspection['company_id'] !== getActiveCompanyId()) {
     addError("Inspeção não encontrada ou você não tem permissão para compartilhar respostas.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Handle form submission
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Send the email
         if (mail($emailTo, $emailSubject, $emailContent, $headers)) {
             addSuccessMessage("Respostas compartilhadas com sucesso por email.");
-            redirect(url: "/inspectia/inspections/responses/index.php?id=" . $inspectionId);
+            redirect(url: "/inspections/responses/index.php?id=" . $inspectionId);
         } else {
             addError("Falha ao enviar email. Por favor, tente novamente.");
         }
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Compartilhar Respostas</h1>
@@ -137,4 +137,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; ?>

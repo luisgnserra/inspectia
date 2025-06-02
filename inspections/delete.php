@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Check if user is logged in
 requireLogin();
@@ -14,7 +14,7 @@ $inspectionId = sanitizeInput($_GET['id'] ?? '');
 
 if (empty($inspectionId)) {
     addError("Inspection ID is required.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Get inspection data
@@ -23,7 +23,7 @@ $inspection = getInspectionById($inspectionId);
 // Check if inspection exists and belongs to this company
 if (!$inspection || $inspection['company_id'] !== getActiveCompanyId()) {
     addError("Inspection not found or you don't have permission to delete it.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Confirm deletion if needed
@@ -35,12 +35,12 @@ if (isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
         addError("Failed to delete inspection. Please try again.");
     }
     
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 } else {
     // Display confirmation message
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="row justify-content-center">
     <div class="col-md-6">
@@ -67,7 +67,7 @@ if (isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
 </div>
 
 <?php 
-    include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php';
     exit; // Stop execution after showing confirmation
 }
 ?>

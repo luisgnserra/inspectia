@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/achievements/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/achievements/functions.php';
 
 // Verificar se o usuário está logado
 requireLogin();
@@ -57,7 +57,7 @@ $criteriaLabels = [
 ];
 
 // Incluir template de cabeçalho
-include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php';
 ?>
 
 <div class="container my-5">
@@ -266,5 +266,5 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php';
 
 <?php
 // Incluir template de rodapé
-include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php';
 ?>

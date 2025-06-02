@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Check if user is logged in
 requireLogin();
@@ -15,7 +15,7 @@ $company = getCompanyById($companyId);
 // Check if company exists and belongs to this user
 if (!$company || $company['user_id'] !== $userId) {
     addError("Company not found or you don't have permission to edit it.");
-    redirect(url: "/inspectia/companies/index.php");
+    redirect(url: "/companies/index.php");
 }
 
 // Processar envio do formulário
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Atualizar a empresa
         if (updateCompany($companyId, $name, $logoPath)) {
             addSuccessMessage("Empresa atualizada com sucesso!");
-            redirect(url: "/inspectia/companies/index.php");
+            redirect(url: "/companies/index.php");
         } else {
             addError("Falha ao atualizar empresa. Por favor, tente novamente.");
         }
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Editar Empresa</h1>
@@ -148,4 +148,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; ?>

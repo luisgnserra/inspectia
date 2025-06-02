@@ -1,8 +1,8 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/admin/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/admin/functions.php';
 
 // Verificar se o usuário está logado
 requireLogin();
@@ -20,7 +20,7 @@ if (isset($_GET['id']) && !empty($_GET['id']) && isset($_GET['action']) && in_ar
     
     if (!$inspection) {
         addError("Inspeção não encontrada");
-        redirect(url: "/inspectia/admin/index.php");
+        redirect(url: "/admin/index.php");
         exit;
     }
     
@@ -43,5 +43,5 @@ if (isset($_GET['id']) && !empty($_GET['id']) && isset($_GET['action']) && in_ar
 }
 
 // Redirecionar de volta para a página de admin
-redirect(url: "/inspectia/admin/index.php#inspections-content");
+redirect(url: "/admin/index.php#inspections-content");
 ?>

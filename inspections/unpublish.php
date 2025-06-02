@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Verificar se o usuário está autenticado
 requireLogin();
@@ -14,7 +14,7 @@ $inspectionId = sanitizeInput($_GET['id'] ?? '');
 
 if (empty($inspectionId)) {
     addError("ID da inspeção é obrigatório.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Obter dados da inspeção
@@ -23,13 +23,13 @@ $inspection = getInspectionById($inspectionId);
 // Verificar se a inspeção existe e pertence a esta empresa
 if (!$inspection || $inspection['company_id'] !== getActiveCompanyId()) {
     addError("Inspeção não encontrada ou você não tem permissão para despublicar.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Verificar se a inspeção já está em status de rascunho
 if ($inspection['status'] === 'draft') {
     addError("Esta inspeção já está em status de rascunho.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Solicitar confirmação se ainda não confirmado
@@ -41,12 +41,12 @@ if (isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
         addError("Falha ao despublicar inspeção. Por favor, tente novamente.");
     }
     
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 } else {
     // Mostrar página de confirmação
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="row justify-content-center">
     <div class="col-md-6">
@@ -73,7 +73,7 @@ if (isset($_GET['confirm']) && $_GET['confirm'] === 'yes') {
 </div>
 
 <?php 
-    include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php';
+    include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php';
     exit; // Interromper a execução após mostrar a confirmação
 }
 ?>

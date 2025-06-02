@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Check if user is logged in
 requireLogin();
@@ -15,7 +15,7 @@ $responseId = sanitizeInput($_GET['id'] ?? '');
 
 if (empty($inspectionId) || empty($responseId)) {
     addError("Inspection ID and Response ID are required.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Get inspection data
@@ -24,7 +24,7 @@ $inspection = getInspectionById($inspectionId);
 // Check if inspection exists and belongs to this company
 if (!$inspection || $inspection['company_id'] !== getActiveCompanyId()) {
     addError("Inspection not found or you don't have permission to view responses.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Get response data
@@ -33,7 +33,7 @@ $response = getResponseById($responseId);
 // Check if response exists and belongs to this inspection
 if (!$response || $response['inspection_id'] !== $inspectionId) {
     addError("Response not found or doesn't belong to the specified inspection.");
-    redirect(url: "/inspectia/inspections/responses/index.php?id=" . $inspectionId);
+    redirect(url: "/inspections/responses/index.php?id=" . $inspectionId);
 }
 
 // Get response answers
@@ -54,7 +54,7 @@ foreach ($questions as $question) {
 }
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">View Response</h1>
@@ -159,4 +159,4 @@ foreach ($questions as $question) {
     </div>
 </div>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; ?>

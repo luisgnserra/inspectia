@@ -1,11 +1,13 @@
 <?php
+$index_principal = true;
+
 require_once  './config/config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Redirect to dashboard if logged in
 if (isLoggedIn()) {
-    redirect(url: BASE_URL . "/dashboard/index.php");
+    redirect(url: "/dashboard/index.php");
 }
 ?>
 

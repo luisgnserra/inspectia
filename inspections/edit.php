@@ -1,8 +1,8 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/achievements/notifications.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/achievements/notifications.php';
 
 // Check if user is logged in
 requireLogin();
@@ -15,7 +15,7 @@ $inspectionId = sanitizeInput($_GET['id'] ?? '');
 
 if (empty($inspectionId)) {
     addError("Inspection ID is required.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Get inspection data
@@ -24,13 +24,13 @@ $inspection = getInspectionById($inspectionId);
 // Check if inspection exists and belongs to this company
 if (!$inspection || $inspection['company_id'] !== getActiveCompanyId()) {
     addError("Inspection not found or you don't have permission to edit it.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Check if the inspection is in draft status
 if ($inspection['status'] !== 'draft') {
     addError("Only draft inspections can be edited. Please unpublish this inspection first.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Get company data
@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             checkForNewAchievements();
             
             addSuccessMessage("Inspection updated successfully!");
-            redirect(url: "/inspectia/inspections/index.php");
+            redirect(url: "/inspections/index.php");
         } else {
             addError("Failed to update inspection. Please try again.");
         }
@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <!-- Adicionar biblioteca Sortable.js para permitir arrastar e soltar -->
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -495,4 +495,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     });
 </script>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; ?>

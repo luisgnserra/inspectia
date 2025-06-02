@@ -1,7 +1,7 @@
 <?php
 require_once  '../../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Verificar se o usuário está logado
 requireLogin();
@@ -14,7 +14,7 @@ $responseId = sanitizeInput($_GET['id'] ?? '');
 
 if (empty($responseId)) {
     addError("ID da resposta não fornecido.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Obter dados da resposta
@@ -22,7 +22,7 @@ $response = getResponseById($responseId);
 
 if (!$response) {
     addError("Resposta não encontrada.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Obter dados da inspeção associada
@@ -31,7 +31,7 @@ $inspection = getInspectionById($response['inspection_id']);
 // Verificar se a inspeção pertence à empresa ativa do usuário
 if (!$inspection || $inspection['company_id'] !== getActiveCompanyId()) {
     addError("Você não tem permissão para acessar essa resposta.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Obter as respostas para cada pergunta
@@ -216,7 +216,7 @@ echo $html;
 // Em um ambiente de produção, você instalaria uma biblioteca como mPDF ou DOMPDF
 // Exemplo com mPDF (requer instalação via composer):
 /*
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/vendor/autoload.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/vendor/autoload.php';
 $mpdf = new \Mpdf\Mpdf();
 $mpdf->WriteHTML($html);
 $mpdf->Output();

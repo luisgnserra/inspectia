@@ -1,6 +1,6 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Get public link ID from URL
 $publicLinkId = sanitizeInput($_GET['id'] ?? '');

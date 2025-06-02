@@ -1,8 +1,8 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/achievements/notifications.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/achievements/notifications.php';
 
 // Check if user is logged in
 requireLogin();
@@ -16,7 +16,7 @@ $company = getCompanyById($companyId);
 // Verificar se o usuário pode criar mais inspeções
 if (!canCreateMoreInspections($companyId)) {
     addError("Você atingiu o número máximo de inspeções para o plano gratuito. Faça upgrade para o Pro para ter inspeções ilimitadas.");
-    redirect(url: "/inspectia/inspections/index.php");
+    redirect(url: "/inspections/index.php");
 }
 
 // Processar envio do formulário
@@ -83,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             checkForNewAchievements();
             
             addSuccessMessage("Inspeção criada com sucesso!");
-            //redirect(url: "/inspectia/inspections/edit.php?id=" . $inspectionId);
-            redirect(url: "/inspectia/dashboard/index.php");
+            //redirect(url: "/inspections/edit.php?id=" . $inspectionId);
+            redirect(url: "/dashboard/index.php");
         } else {
             addError("Falha ao criar inspeção. Por favor, tente novamente.");
         }
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Criar Inspeção</h1>
@@ -192,4 +192,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     });
 </script>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; ?>

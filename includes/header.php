@@ -1,7 +1,11 @@
 <?php
 $script = $_SERVER['SCRIPT_FILENAME'];
 
-$url = strpos($script, 'inspections/responses') !== false ? '../../' :  '../';
+if(isset($index_principal) && $index_principal === true){
+    $url = './';
+}else{
+    $url = strpos($script, 'inspections/responses') !== false ? '../../' :  '../';
+}
 
 require_once $url . 'config/config.php';
 ?>

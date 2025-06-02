@@ -1,8 +1,8 @@
 <?php
 require_once  '../../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
-//require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/assets/js/main.js';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
+//require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/assets/js/main.js';
 
 // Check if user is logged in
 requireLogin();
@@ -15,7 +15,7 @@ $inspectionId = sanitizeInput($_GET['id'] ?? '');
 
 if (empty($inspectionId)) {
     addError("Inspection ID is required.");
-    redirect(url: "/inspectia/inspections/responses/index.php");
+    redirect(url: "/inspections/responses/index.php");
 }
 
 // Get inspection data
@@ -24,7 +24,7 @@ $inspection = getInspectionById($inspectionId);
 // Check if inspection exists and belongs to this company
 if (!$inspection || $inspection['company_id'] !== getActiveCompanyId()) {
     addError("Inspection not found or you don't have permission to view responses.");
-    redirect(url: "/inspectia/inspections/responses/index.php");
+    redirect(url: "/inspections/responses/index.php");
 }
 
 // Get responses for this inspection
@@ -34,7 +34,7 @@ $responses = getResponsesByInspectionId($inspectionId);
 $questions = getQuestionsByInspectionId($inspectionId);
 ?>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php'; ?>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Respostas</h1>
@@ -224,4 +224,4 @@ $questions = getQuestionsByInspectionId($inspectionId);
     </div>
 </div>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; ?>

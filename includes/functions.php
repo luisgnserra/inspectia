@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/config/database.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/config/database.php';
 
 
 
@@ -473,14 +473,14 @@ function verifyPassword($userId, $password) {
 // Logo handling
 function uploadCompanyLogo($file, $companyId) {
     // Check if uploads directory exists, create if not
-    $uploadsDir = $_SERVER['DOCUMENT_ROOT'] . '/inspectia/uploads/logos';
+    $uploadsDir = $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/uploads/logos';
     if (!file_exists($uploadsDir)) {
         mkdir($uploadsDir, 0777, true);
     }
     
     $fileName = generateUuid() . '-' . basename($file['name']);
     $targetFile = $uploadsDir . '/' . $fileName;
-    $uploadPath = '/inspectia/uploads/logos/' . $fileName;
+    $uploadPath = BASE_URL . '/uploads/logos/' . $fileName;
     
     // Validate file
     $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));

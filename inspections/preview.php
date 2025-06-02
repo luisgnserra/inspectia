@@ -1,7 +1,7 @@
 <?php
 require_once  '../config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/functions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/functions.php';
 
 // Get inspection ID from URL
 $inspectionId = sanitizeInput($_GET['id'] ?? '');
@@ -62,7 +62,7 @@ foreach ($questions as $index => $question) {
 }
 
 // Include template header
-include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/header.php';
 ?>
 
 <div class="container py-5">
@@ -239,4 +239,4 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php';
     </div>
 </div>
 
-<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . BASE_URL . '/includes/footer.php'; ?>
