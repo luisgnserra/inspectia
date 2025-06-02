@@ -6,7 +6,7 @@
 session_start();
 
 // Base URL
-define('BASE_URL', '/inspectia');
+define('BASE_URL', getCurrentUrl());
 
 // Email settings
 define('SMTP_HOST', 'smtp.office365.com');
@@ -20,6 +20,20 @@ define('SMTP_FROM_NAME', 'InspectIA - Excelência Consultoria e Educação');
 // Plan limitations
 define('FREE_PLAN_MAX_INSPECTIONS', 3);
 define('FREE_PLAN_MAX_RESPONSES', 3);
+
+
+
+function getCurrentUrl() {
+    $host = $_SERVER['HTTP_HOST'];
+    //$uri = $_SERVER['REQUEST_URI'];
+    
+    return (strpos($host, 'localhost') !== false) ? '/inspectia' : '';
+}
+
+//echo getCurrentUrl();
+
+
+
 
 // Utility functions
 function redirect($url)
