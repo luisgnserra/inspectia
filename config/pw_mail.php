@@ -1,0 +1,3 @@
+return [
+  'SMTP_PASSWORD' => ''
+];

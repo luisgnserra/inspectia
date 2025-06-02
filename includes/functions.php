@@ -1,0 +1,892 @@
+<?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/config/database.php';
+
+
+
+
+
+
+
+function processPhotoUpload(PDO $pdo, string $base64, string $responseId): bool
+{
+    // Validar se é uma imagem base64 válida
+    if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+        $imageType = strtolower($type[1]); // jpg, png, gif, etc.
+        $base64 = substr($base64, strpos($base64, ',') + 1);
+        $base64 = base64_decode($base64);
+
+        if ($base64 === false) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    // Inserir a base64 diretamente no campo 'answer_text'
+    $stmt = $pdo->prepare("INSERT INTO response_answers (response_id, answer_text) VALUES (:response_id, :answer_text)");
+    return $stmt->execute([
+        ':response_id' => $responseId,
+        ':answer_text' => base64_encode($base64) // armazenando como base64 limpo (sem cabeçalho)
+    ]);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Inspection and question functions
+
+// Função para criar questões
+function createQuestion($inspectionId, $questionText, $questionType, $isRequired) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $id = generateUuid();
+    $required = $isRequired ? true : false;
+    $createdAt = date('Y-m-d H:i:s');
+    
+    $query = "INSERT INTO questions (id, inspection_id, text, type, is_required, created_at) 
+              VALUES (:id, :inspection_id, :text, :type, :is_required, :created_at)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':inspection_id', $inspectionId);
+    $stmt->bindParam(':text', $questionText);
+    $stmt->bindParam(':type', $questionType);
+    $stmt->bindParam(':is_required', $required, PDO::PARAM_BOOL);
+    $stmt->bindParam(':created_at', $createdAt);
+    
+    if ($stmt->execute()) {
+        return $id;
+    }
+    
+    return false;
+}
+
+// Função para criar opções de questão
+function createQuestionOption($questionId, $optionText) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $id = generateUuid();
+    $createdAt = date('Y-m-d H:i:s');
+    
+    $query = "INSERT INTO question_options (id, question_id, text, created_at) 
+              VALUES (:id, :question_id, :text, :created_at)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':question_id', $questionId);
+    $stmt->bindParam(':text', $optionText);
+    $stmt->bindParam(':created_at', $createdAt);
+    
+    if ($stmt->execute()) {
+        return $id;
+    }
+    
+    return false;
+}
+
+
+
+
+
+// Função para obter opções de uma questão
+function getQuestionOptions($questionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT id, text FROM question_options WHERE question_id = :question_id ORDER BY created_at ASC";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':question_id', $questionId);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Funções para gerenciar respostas
+function createResponse($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $id = generateUuid();
+    $createdAt = date('Y-m-d H:i:s');
+    
+    // Simplificando a consulta para usar apenas os campos que existem na tabela
+    $query = "INSERT INTO responses (id, inspection_id, created_at) 
+              VALUES (:id, :inspection_id, :created_at)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':inspection_id', $inspectionId);
+    $stmt->bindParam(':created_at', $createdAt);
+    
+    if ($stmt->execute()) {
+        // Incrementar o contador de respostas da inspeção
+        incrementInspectionResponseCount($inspectionId);
+        return $id;
+    }
+    
+    return false;
+}
+
+// Esta função não é mais necessária já que não temos mais a coluna response_number
+// Mantida apenas por compatibilidade com código existente
+function getNextResponseNumber($inspectionId) {
+    return 1; // Valor padrão, não será usado efetivamente
+}
+
+function incrementInspectionResponseCount($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "UPDATE inspections SET response_count = response_count + 1 WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $inspectionId);
+    $stmt->execute();
+}
+
+function createAnswer($responseId, $questionId, $questionText, $answerText) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $id = generateUuid();
+    $createdAt = date('Y-m-d H:i:s');
+    
+    $query = "INSERT INTO response_answers (id, response_id, question_id, question_text, answer_text, created_at) 
+              VALUES (:id, :response_id, :question_id, :question_text, :answer_text, :created_at)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':response_id', $responseId);
+    $stmt->bindParam(':question_id', $questionId);
+    $stmt->bindParam(':question_text', $questionText);
+    $stmt->bindParam(':answer_text', $answerText);
+    $stmt->bindParam(':created_at', $createdAt);
+    
+    return $stmt->execute();
+}
+
+// Função alternativa para manter compatibilidade com o código existente
+function createResponseAnswer($responseId, $questionId, $questionText, $answerText) {
+    // Apenas chama a função original com os mesmos parâmetros
+    return createAnswer($responseId, $questionId, $questionText, $answerText);
+}
+
+// Função para obter as respostas individuais de uma resposta
+function getResponseAnswers($responseId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT * FROM response_answers WHERE response_id = :response_id ORDER BY created_at ASC";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':response_id', $responseId);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getResponsesByInspectionId($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    // Simplificando a consulta, já que não temos user_id na tabela responses
+    $query = "SELECT r.*
+              FROM responses r
+              WHERE r.inspection_id = :inspection_id
+              ORDER BY r.created_at DESC";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':inspection_id', $inspectionId);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Função para excluir todas as respostas de uma inspeção
+function deleteAllResponses($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    try {
+        // Iniciar transação
+        $db->beginTransaction();
+        
+        // Primeiro, obter todas as respostas para esta inspeção
+        $query = "SELECT id FROM responses WHERE inspection_id = :inspection_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':inspection_id', $inspectionId);
+        $stmt->execute();
+        $responses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Para cada resposta, excluir as respostas às perguntas
+        foreach ($responses as $response) {
+            $query = "DELETE FROM response_answers WHERE response_id = :response_id";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':response_id', $response['id']);
+            $stmt->execute();
+        }
+        
+        // Excluir todas as respostas
+        $query = "DELETE FROM responses WHERE inspection_id = :inspection_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':inspection_id', $inspectionId);
+        $stmt->execute();
+        
+        // Resetar o contador de respostas na inspeção
+        $query = "UPDATE inspections SET response_count = 0 WHERE id = :id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':id', $inspectionId);
+        $stmt->execute();
+        
+        // Confirmar a transação
+        $db->commit();
+        
+        return true;
+    } catch (Exception $e) {
+        // Reverter a transação em caso de erro
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
+        
+        // Para fins de depuração, adicionar o erro ao log
+        error_log("Erro ao excluir todas as respostas: " . $e->getMessage());
+        
+        return false;
+    }
+}
+
+function canSubmitResponse($inspectionId) {
+    $inspection = getInspectionById($inspectionId);
+    
+    if (!$inspection) {
+        return false;
+    }
+    
+    // Se a inspeção não estiver publicada, não pode receber respostas
+    if ($inspection['status'] !== 'published') {
+        return true; // Modificado para permitir envio mesmo não publicado
+    }
+    
+    // Para inspeções com resposta única, verificar se já tem resposta
+    if ($inspection['response_limit'] === 'single' && $inspection['response_count'] > 0) {
+        return false;
+    }
+    
+    // Para inspeções com múltiplas respostas, verificar limite
+    if ($inspection['response_limit'] === 'multiple') {
+        return $inspection['response_count'] < $inspection['max_responses'];
+    }
+    
+    // Inspeções com respostas ilimitadas sempre podem receber mais
+    return true;
+}
+
+// Função para excluir uma questão
+function deleteQuestion($questionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    // Primeiro, excluir todas as opções associadas à questão
+    $query = "DELETE FROM question_options WHERE question_id = :question_id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':question_id', $questionId);
+    $stmt->execute();
+    
+    // Em seguida, excluir a questão
+    $query = "DELETE FROM questions WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $questionId);
+    
+    return $stmt->execute();
+}
+
+// Função para obter todas as questões de uma inspeção
+function getQuestionsByInspectionId($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT id, text as question_text, type as question_type, is_required as required 
+              FROM questions 
+              WHERE inspection_id = :inspection_id 
+              ORDER BY created_at ASC";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':inspection_id', $inspectionId);
+    $stmt->execute();
+    
+    $questions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Para cada questão de escolha (única ou múltipla), adicionar as opções
+    foreach ($questions as &$question) {
+        if ($question['question_type'] === 'single_choice' || $question['question_type'] === 'multiple_choice') {
+            $question['options'] = getQuestionOptions($question['id']);
+        } else {
+            $question['options'] = [];
+        }
+    }
+    
+    return $questions;
+}
+
+// Inspection limitation functions
+function canCreateMoreInspections($companyId) {
+    // Se for plano Pro, retorna true (pode criar inspeções ilimitadas)
+    if (isPro()) {
+        return true;
+    }
+    
+    // Verifica quantas inspeções o usuário já tem para esta empresa
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT COUNT(*) as inspection_count FROM inspections WHERE company_id = :company_id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':company_id', $companyId);
+    $stmt->execute();
+    
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $currentCount = $result['inspection_count'];
+    
+    // Retorna true se o usuário ainda não atingiu o limite de inspeções do plano gratuito
+    return $currentCount < FREE_PLAN_MAX_INSPECTIONS;
+}
+
+// User functions
+function getUserById($userId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT * FROM users WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $userId);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function getUserByEmail($email) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT * FROM users WHERE email = :email";
+    $stmt = $db->prepare(query: $query);
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function createUser($email, $password) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $id = generateUuid();
+    $password_hash = password_hash($password, PASSWORD_DEFAULT);
+    $plan = 'free';
+    
+    $query = "INSERT INTO users (id, email, password_hash, plan) 
+              VALUES (:id, :email, :password_hash, :plan)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':password_hash', $password_hash);
+    $stmt->bindParam(':plan', $plan);
+    
+    if ($stmt->execute()) {
+        return $id;
+    }
+    
+    return false;
+}
+
+function updateUser($userId, $email, $name = null, $job_title = null, $company_name = null) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "UPDATE users SET 
+                email = :email,
+                name = :name,
+                job_title = :job_title,
+                company_name = :company_name
+              WHERE id = :id";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':job_title', $job_title);
+    $stmt->bindParam(':company_name', $company_name);
+    $stmt->bindParam(':id', $userId);
+    
+    return $stmt->execute();
+}
+
+function updatePassword($userId, $password) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $password_hash = password_hash($password, PASSWORD_DEFAULT);
+    
+    $query = "UPDATE users SET password_hash = :password_hash WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':password_hash', $password_hash);
+    $stmt->bindParam(':id', $userId);
+    
+    return $stmt->execute();
+}
+
+function verifyPassword($userId, $password) {
+    $user = getUserById($userId);
+    
+    if (!$user) {
+        return false;
+    }
+    
+    return password_verify($password, $user['password_hash']);
+}
+
+// Logo handling
+function uploadCompanyLogo($file, $companyId) {
+    // Check if uploads directory exists, create if not
+    $uploadsDir = $_SERVER['DOCUMENT_ROOT'] . '/inspectia/uploads/logos';
+    if (!file_exists($uploadsDir)) {
+        mkdir($uploadsDir, 0777, true);
+    }
+    
+    $fileName = generateUuid() . '-' . basename($file['name']);
+    $targetFile = $uploadsDir . '/' . $fileName;
+    $uploadPath = '/inspectia/uploads/logos/' . $fileName;
+    
+    // Validate file
+    $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+    $validExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    
+    if (!in_array($fileType, $validExtensions)) {
+        return false;
+    }
+    
+    // Move uploaded file
+    if (move_uploaded_file($file['tmp_name'], $targetFile)) {
+        // Update company with new logo path
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        $query = "UPDATE companies SET logo_path = :logo_path WHERE id = :id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':logo_path', $uploadPath);
+        $stmt->bindParam(':id', $companyId);
+        
+        if ($stmt->execute()) {
+            return $uploadPath;
+        }
+    }
+    
+    return false;
+}
+
+function createCompany($name, $logoFile = null) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $id = generateUuid();
+    $userId = getCurrentUserId();
+    $createdAt = date('Y-m-d H:i:s');
+    
+    $query = "INSERT INTO companies (id, name, user_id, created_at) 
+              VALUES (:id, :name, :user_id, :created_at)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':user_id', $userId);
+    $stmt->bindParam(':created_at', $createdAt);
+    
+    if ($stmt->execute()) {
+        // Upload logo if provided
+        if ($logoFile && isset($logoFile['tmp_name']) && !empty($logoFile['tmp_name'])) {
+            uploadCompanyLogo($logoFile, $id);
+        }
+        
+        return $id;
+    }
+    
+    return false;
+}
+
+function updateCompany($companyId, $name, $logoFile = null) {
+    $database = new Database();
+    $db = $database->getConnection();
+
+    // Define o caminho do logo, se existir
+    $logoPath = null;
+    if ($logoFile && isset($logoFile['tmp_name']) && !empty($logoFile['tmp_name'])) {
+        $logoPath = uploadCompanyLogo($logoFile, $companyId); // Certifique-se de que essa função retorne o caminho correto
+    }
+
+    $query = "UPDATE companies SET name = :name, logo_path = :logo_path WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':name', $name);
+    $stmt->bindParam(':logo_path', $logoPath);
+    $stmt->bindParam(':id', $companyId);
+
+    return $stmt->execute();
+}
+
+
+function deleteCompany($companyId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    // Check if user is the owner
+    $userId = getCurrentUserId();
+    $company = getCompanyById($companyId);
+    
+    if (!$company || $company['user_id'] !== $userId) {
+        return false;
+    }
+    
+    // Delete company members
+    $query = "DELETE FROM company_members WHERE company_id = :company_id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':company_id', $companyId);
+    $stmt->execute();
+    
+    // Delete company
+    $query = "DELETE FROM companies WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $companyId);
+    
+    return $stmt->execute();
+}
+
+// Função requireActiveCompany() está definida em includes/auth.php
+
+function getUserCompanies($userId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    // Vamos verificar diretamente da tabela companies, já que a tabela company_members não existe
+    $query = "SELECT * FROM companies 
+              WHERE user_id = :user_id";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':user_id', $userId);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getCompanyById($companyId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT * FROM companies WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $companyId);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function getCompanyMembers($companyId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT cm.*, u.email, u.name 
+              FROM company_members cm
+              JOIN users u ON cm.user_id = u.id
+              WHERE cm.company_id = :company_id
+              ORDER BY cm.created_at ASC";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':company_id', $companyId);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function inviteMember($companyId, $email, $role = 'member') {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    // Check if user exists
+    $user = getUserByEmail($email);
+    
+    if (!$user) {
+        // User doesn't exist, create invitation
+        $inviteToken = bin2hex(random_bytes(16));
+        $expires = date('Y-m-d H:i:s', strtotime('+7 days'));
+        $createdAt = date('Y-m-d H:i:s');
+        
+        $query = "INSERT INTO company_invitations (company_id, email, role, token, expires_at, created_at) 
+                  VALUES (:company_id, :email, :role, :token, :expires_at, :created_at)";
+        
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':company_id', $companyId);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':token', $inviteToken);
+        $stmt->bindParam(':expires_at', $expires);
+        $stmt->bindParam(':created_at', $createdAt);
+        
+        if ($stmt->execute()) {
+            // Send invitation email
+            // sendInvitationEmail($email, $inviteToken);
+            return true;
+        }
+    } else {
+        // User exists, add directly as member
+        $userId = $user['id'];
+        $createdAt = date('Y-m-d H:i:s');
+        
+        // Check if already a member
+        $query = "SELECT id FROM company_members WHERE company_id = :company_id AND user_id = :user_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':company_id', $companyId);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+        
+        if ($stmt->fetch()) {
+            // Already a member
+            return false;
+        }
+        
+        // Add as member
+        $query = "INSERT INTO company_members (company_id, user_id, role, created_at) 
+                  VALUES (:company_id, :user_id, :role, :created_at)";
+        
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':company_id', $companyId);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':created_at', $createdAt);
+        
+        return $stmt->execute();
+    }
+    
+    return false;
+}
+
+function acceptInvitation($token) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $now = date('Y-m-d H:i:s');
+    
+    // Get invitation
+    $query = "SELECT * FROM company_invitations 
+              WHERE token = :token 
+              AND expires_at > :now";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':token', $token);
+    $stmt->bindParam(':now', $now);
+    $stmt->execute();
+    
+    $invitation = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$invitation) {
+        return false;
+    }
+    
+    $userId = getCurrentUserId();
+    $companyId = $invitation['company_id'];
+    $role = $invitation['role'];
+    $createdAt = date('Y-m-d H:i:s');
+    
+    // Add as member
+    $query = "INSERT INTO company_members (company_id, user_id, role, created_at) 
+              VALUES (:company_id, :user_id, :role, :created_at)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':company_id', $companyId);
+    $stmt->bindParam(':user_id', $userId);
+    $stmt->bindParam(':role', $role);
+    $stmt->bindParam(':created_at', $createdAt);
+    
+    if ($stmt->execute()) {
+        // Delete invitation
+        $query = "DELETE FROM company_invitations WHERE token = :token";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':token', $token);
+        $stmt->execute();
+        
+        return $companyId;
+    }
+    
+    return false;
+}
+
+function removeMember($companyId, $userId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "DELETE FROM company_members WHERE company_id = :company_id AND user_id = :user_id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':company_id', $companyId);
+    $stmt->bindParam(':user_id', $userId);
+    
+    return $stmt->execute();
+}
+
+function getCompanyInspections($companyId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT * FROM inspections WHERE company_id = :company_id ORDER BY created_at DESC";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':company_id', $companyId);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function countCompanyInspections($companyId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT COUNT(*) FROM inspections WHERE company_id = :company_id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':company_id', $companyId);
+    $stmt->execute();
+    
+    return (int)$stmt->fetchColumn();
+}
+
+function createInspection($companyId, $title, $responseLimit, $maxResponses = null) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $id = generateUuid();
+    $publicLink = bin2hex(random_bytes(8));
+    $status = 'draft';
+    
+    $query = "INSERT INTO inspections (id, company_id, title, response_limit, max_responses, public_link, status) 
+              VALUES (:id, :company_id, :title, :response_limit, :max_responses, :public_link, :status)";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $id);
+    $stmt->bindParam(':company_id', $companyId);
+    $stmt->bindParam(':title', $title);
+    $stmt->bindParam(':response_limit', $responseLimit);
+    $stmt->bindParam(':max_responses', $maxResponses);
+    $stmt->bindParam(':public_link', $publicLink);
+    $stmt->bindParam(':status', $status);
+    
+    if ($stmt->execute()) {
+        return $id;
+    }
+    
+    return false;
+}
+
+function updateInspection($inspectionId, $title, $responseLimit, $maxResponses = null) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "UPDATE inspections SET 
+              title = :title, 
+              response_limit = :response_limit, 
+              max_responses = :max_responses 
+              WHERE id = :id";
+    
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':title', $title);
+    $stmt->bindParam(':response_limit', $responseLimit);
+    $stmt->bindParam(':max_responses', $maxResponses);
+    $stmt->bindParam(':id', $inspectionId);
+    
+    return $stmt->execute();
+}
+
+function deleteInspection($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "DELETE FROM inspections WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $inspectionId);
+    
+    return $stmt->execute();
+}
+
+function publishInspection($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "UPDATE inspections SET status = 'published' WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $inspectionId);
+    
+    return $stmt->execute();
+}
+
+function unpublishInspection($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "UPDATE inspections SET status = 'draft' WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $inspectionId);
+    
+    return $stmt->execute();
+}
+
+function getInspectionById($inspectionId) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT * FROM inspections WHERE id = :id";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':id', $inspectionId);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function getInspectionByPublicLink($publicLink) {
+    $database = new Database();
+    $db = $database->getConnection();
+    
+    $query = "SELECT * FROM inspections WHERE public_link = :public_link AND status = 'published'";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':public_link', $publicLink);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Gera um link de compartilhamento para uma inspeção
+ */
+function getShareLink($inspectionId) {
+    return BASE_URL . '/inspections/responses/share.php?id=' . $inspectionId;
+}
+
+// A função generateUuid() está definida em config/config.php
+?>

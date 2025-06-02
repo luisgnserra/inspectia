@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo circular do badge -->
+  <circle cx="100" cy="100" r="90" fill="#4287f5" />
+  <circle cx="100" cy="100" r="80" fill="#2563eb" />
+  
+  <!-- Bordas decorativas -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#ffd700" stroke-width="5" />
+  
+  <!-- Forma de documento -->
+  <rect x="60" y="45" width="80" height="100" rx="5" fill="white" />
+  
+  <!-- Linhas no documento -->
+  <line x1="70" y1="70" x2="130" y2="70" stroke="#ddd" stroke-width="3" />
+  <line x1="70" y1="90" x2="130" y2="90" stroke="#ddd" stroke-width="3" />
+  <line x1="70" y1="110" x2="130" y2="110" stroke="#ddd" stroke-width="3" />
+  
+  <!-- Marca de verificação -->
+  <path d="M75,125 L90,140 L125,105" stroke="#22c55e" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Número 1 para indicar o primeiro -->
+  <text x="100" y="170" font-family="Arial, sans-serif" font-size="50" font-weight="bold" text-anchor="middle" fill="#ffd700">1</text>
+</svg>

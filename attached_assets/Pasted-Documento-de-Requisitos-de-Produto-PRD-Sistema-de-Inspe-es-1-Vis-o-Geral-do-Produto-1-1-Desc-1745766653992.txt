@@ -1,0 +1,242 @@
+Documento de Requisitos de Produto (PRD) - Sistema de Inspeções
+1. Visão Geral do Produto
+1.1 Descrição
+O sistema é uma plataforma web para criação, gerenciamento e análise de formulários de inspeção. Permite que empresas criem formulários personalizados, coletem respostas e analisem os dados coletados.
+1.2 Objetivos
+•	Facilitar a criação e gerenciamento de formulários de inspeção
+•	Permitir a coleta de respostas em diversos formatos (texto, múltipla escolha, etc.)
+•	Oferecer ferramentas para análise e exportação dos dados coletados
+•	Implementar sistema de planos com funcionalidades gratuitas e premium
+2. Estrutura do Sistema
+2.1 Arquitetura
+•	Frontend: React com TypeScript, Tailwind CSS, Shadcn/UI
+•	Armazenamento: Local Storage (implementação atual), com capacidade de migração para banco de dados SQL
+2.2 Modelos de Dados Principais
+•	Usuários
+•	Empresas
+•	Inspeções
+•	Perguntas
+•	Respostas
+3. Funcionalidades do Sistema
+3.1 Autenticação e Autorização
+•	Cadastro de Usuários: Permite registro com e-mail e senha
+•	Login: Autenticação de usuários cadastrados
+•	Recuperação de Senha: Sistema para redefinição de senhas
+•	Tipos de Planos: Free e Pro, com diferentes limitações de uso
+3.2 Gerenciamento de Empresas
+•	Criação de Empresas: Usuários podem criar múltiplas empresas
+•	Seleção de Empresa Ativa: Troca entre empresas cadastradas
+•	Edição e Exclusão: Possibilidade de atualizar ou remover empresas
+3.3 Gerenciamento de Inspeções
+•	Criação de Inspeções: Interface para criação de novos formulários
+•	Configuração de Limites: Definição de número máximo de respostas
+•	Single: Permite apenas uma resposta
+•	Multiple: Permite número limitado de respostas
+•	Unlimited: Sem limite de respostas (apenas no plano Pro)
+•	Status das Inspeções: Draft (rascunho) ou Published (publicado)
+•	Link Público: Geração de URL para compartilhamento dos formulários
+•	Teste de Inspeções: Visualização prévia do formulário antes de publicação
+•	Despublicação: Retornar uma inspeção publicada para o estado de rascunho
+3.4 Gerenciamento de Perguntas
+•	Tipos de Perguntas:
+•	Texto Curto (short_text)
+•	Texto Longo (long_text)
+•	Escolha Única (single_choice)
+•	Múltipla Escolha (multiple_choice)
+•	Data (date)
+•	Hora (time)
+•	Configurações:
+•	Marcação de campos obrigatórios
+•	Adição de opções para perguntas de escolha
+•	Edição e Exclusão: Possibilidade de modificar ou remover perguntas
+3.5 Gerenciamento de Respostas
+•	Visualização: Lista de todas as respostas recebidas por inspeção
+•	Exclusão: Remoção individual de respostas (apenas plano Pro)
+•	Exclusão em Massa: Remoção de todas as respostas de uma inspeção
+•	Exportação: Exportação de respostas em formatos CSV e JSON
+•	Compartilhamento por E-mail: Envio das respostas para endereços específicos
+•	Análise com IA: Framework para análise automatizada (ainda não implementado)
+3.6 Interface do Usuário
+•	Layout Responsivo: Adaptação para diferentes tamanhos de tela
+•	Navegação Intuitiva: Menus e botões claramente identificados
+•	Dashboard: Visão geral das inspeções e empresas
+•	Feedback Visual: Toasts para notificações de ações bem-sucedidas ou erros
+3.7 Limitações por Plano
+•	Plano Free:
+•	Máximo de 3 inspeções por empresa
+•	Limite fixo de 3 respostas por inspeção
+•	Sem possibilidade de excluir respostas individuais
+•	Plano Pro:
+•	Número ilimitado de inspeções
+•	Configuração flexível de limites de respostas
+•	Acesso a todas as funcionalidades de exclusão e análise
+4. Fluxos de Usuário
+4.1 Criação e Publicação de Inspeção
+1.	Usuário acessa o dashboard
+2.	Seleciona "Criar nova inspeção"
+3.	Preenche título e configurações
+4.	Adiciona perguntas de diferentes tipos
+5.	Configura opções para perguntas de escolha
+6.	Publica a inspeção quando finalizada
+7.	Obtém link público para compartilhamento
+4.2 Coleta de Respostas
+1.	Respondente acessa link público da inspeção
+2.	Preenche as perguntas conforme solicitado
+3.	Submete o formulário
+4.	Recebe confirmação de resposta enviada
+4.3 Análise de Respostas
+1.	Usuário acessa a página de respostas de uma inspeção
+2.	Visualiza lista de todas as respostas recebidas
+3.	Pode exportar dados em diferentes formatos
+4.	Pode excluir respostas (conforme permissões do plano)
+5.	Pode compartilhar resultados via e-mail
+5. Requisitos Não-Funcionais
+5.1 Desempenho
+•	Carregamento rápido das páginas
+•	Transições suaves entre interfaces
+5.2 Usabilidade
+•	Interface intuitiva e de fácil navegação
+•	Feedback claro para todas as ações do usuário
+5.3 Segurança
+•	Autenticação robusta
+•	Proteção de dados dos usuários
+•	Validação de entradas para prevenir injeções
+5.4 Compatibilidade
+•	Funcionamento em navegadores modernos
+•	Design responsivo para diferentes dispositivos
+6. Instruções SQL para Banco de Dados
+-- Criação das tabelas
+
+-- Tabela de usuários
+CREATE TABLE users (
+  id VARCHAR(255) PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  plan ENUM('free', 'pro') NOT NULL DEFAULT 'free',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de empresas
+CREATE TABLE companies (
+  id VARCHAR(255) PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Tabela de inspeções
+CREATE TABLE inspections (
+  id VARCHAR(255) PRIMARY KEY,
+  company_id VARCHAR(255) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  response_limit ENUM('single', 'multiple', 'unlimited') NOT NULL DEFAULT 'unlimited',
+  max_responses INT NULL,
+  public_link VARCHAR(255) NOT NULL UNIQUE,
+  status ENUM('draft', 'published') NOT NULL DEFAULT 'draft',
+  response_count INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+);
+
+-- Tabela de perguntas
+CREATE TABLE questions (
+  id VARCHAR(255) PRIMARY KEY,
+  inspection_id VARCHAR(255) NOT NULL,
+  text TEXT NOT NULL,
+  type ENUM('short_text', 'long_text', 'single_choice', 'multiple_choice', 'date', 'time') NOT NULL,
+  is_required BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (inspection_id) REFERENCES inspections(id) ON DELETE CASCADE
+);
+
+-- Tabela de opções para perguntas de escolha
+CREATE TABLE question_options (
+  id VARCHAR(255) PRIMARY KEY,
+  question_id VARCHAR(255) NOT NULL,
+  text VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
+);
+
+-- Tabela de respostas
+CREATE TABLE responses (
+  id VARCHAR(255) PRIMARY KEY,
+  inspection_id VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (inspection_id) REFERENCES inspections(id) ON DELETE CASCADE
+);
+
+-- Tabela de respostas individuais por pergunta
+CREATE TABLE response_answers (
+  id VARCHAR(255) PRIMARY KEY,
+  response_id VARCHAR(255) NOT NULL,
+  question_id VARCHAR(255) NOT NULL,
+  question_text TEXT NOT NULL,
+  answer_text TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (response_id) REFERENCES responses(id) ON DELETE CASCADE,
+  FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
+);
+
+-- Índices para otimização de consultas
+CREATE INDEX idx_company_user ON companies(user_id);
+CREATE INDEX idx_inspection_company ON inspections(company_id);
+CREATE INDEX idx_question_inspection ON questions(inspection_id);
+CREATE INDEX idx_option_question ON question_options(question_id);
+CREATE INDEX idx_response_inspection ON responses(inspection_id);
+CREATE INDEX idx_answer_response ON response_answers(response_id);
+CREATE INDEX idx_answer_question ON response_answers(question_id);
+
+-- Gatilho para atualizar o contador de respostas
+DELIMITER //
+CREATE TRIGGER after_response_insert
+AFTER INSERT ON responses
+FOR EACH ROW
+BEGIN
+  UPDATE inspections 
+  SET response_count = response_count + 1 
+  WHERE id = NEW.inspection_id;
+END//
+
+CREATE TRIGGER after_response_delete
+AFTER DELETE ON responses
+FOR EACH ROW
+BEGIN
+  UPDATE inspections 
+  SET response_count = response_count - 1 
+  WHERE id = OLD.inspection_id;
+END//
+DELIMITER ;
+
+-- Visão para relatórios de uso por empresa
+CREATE VIEW company_usage_report AS
+SELECT 
+  c.id as company_id,
+  c.name as company_name,
+  u.email as owner_email,
+  u.plan as plan,
+  COUNT(DISTINCT i.id) as total_inspections,
+  SUM(i.response_count) as total_responses
+FROM 
+  companies c
+JOIN 
+  users u ON c.user_id = u.id
+LEFT JOIN 
+  inspections i ON c.id = i.company_id
+GROUP BY 
+  c.id, c.name, u.email, u.plan;
+7. Próximos Passos e Melhorias Futuras
+7.1 Funcionalidades
+•	Implementação da análise com IA para respostas
+•	Sistema completo de envio de e-mail com respostas
+•	Mais tipos de perguntas (escala, upload de arquivos, etc.)
+•	Temas personalizados para formulários
+7.2 Infraestrutura
+•	Migração do armazenamento local para banco de dados
+•	Implementação de API para comunicação frontend/backend
+•	Sistema de backup e recuperação de dados
+7.3 Monetização
+•	Implementação de gateway de pagamento para assinaturas
+•	Níveis adicionais de planos com funcionalidades específicas
+•	Integração com serviços de terceiros
