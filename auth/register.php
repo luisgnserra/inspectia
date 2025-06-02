@@ -1,6 +1,6 @@
 <?php
-require_once '../config/config.php';
-require_once '../includes/auth.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/auth.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php include_once '../includes/header.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/header.php'; ?>
 
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">
@@ -63,4 +63,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<?php include_once '../includes/footer.php'; ?>
+<?php include_once $_SERVER['DOCUMENT_ROOT'] . '/inspectia/includes/footer.php'; ?>
